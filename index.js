@@ -13,24 +13,33 @@ module.exports = function(opts){
     var constants = require('./constants.js');
     var requestChaskiSocket = zmq.socket('req'); 
     var sendMessageSocket = zmq.socket('req'); 
-    
+    var callbacks = []; 
+    var acks = []; 
     var module = {};
     module.chaski = {};
+
     requestChaskiSocket.connect('tcp://' + opts.ipAtahualpa + ':' + constants.PORT_CHASKI_ASSIGNER);
     requestChaskiSocket.on('message', function(result, data){
         var parsedResponse = JSON.parse(data);
-        console.log('result is :' + result);
         module.chaski.ip = parsedResponse.ip;
+        //TODO we must implement some way to understand which response is to each request , since the order does not have to be LILO
+        callbacks.shift()(parsedResponse);
     });
 
     sendMessageSocket.connect('tcp://' + opts.ipAtahualpa + ':' + constants.PORT_MESSAGE_RECEIVER);
+    sendMessageSocket.on('message', function(res, message){
+        //TODO we must implement some way to understand which response is to each request , since the order does not have to be LILO
+        acks.shift()(res.toString()); 
+    });
    
-    var getWorker = function getWorker (params, callback){
-        requestChaskiSocket.send(params);
+    var getWorker = function getWorker (clientId, callback){
+        callbacks.push(callback); 
+        requestChaskiSocket.send(JSON.stringify({id: clientId}));
     }; 
     
-    var sendMessage = function sendMessage(message){
-        sendMessageSocket.send(message);
+    var sendMessage = function sendMessage(channelId, message, callback){
+        acks.push(callback);
+        sendMessageSocket.send([channelId, message]);
     }; 
 
 
@@ -40,9 +49,8 @@ module.exports = function(opts){
         requestChaskiSocket.close();
     };
    
-    console.log('finishing loadind module'); 
     module.getWorker = getWorker;
     module.sendMessage = sendMessage;
     module.close = close;
     return module;
-}
+};
