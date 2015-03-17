@@ -10,7 +10,7 @@ module.exports = function(opts){
 
     
     var zmq = require('zmq');
-    var constants = require('./constants.js');
+    var constants = require('bastly_constants');
     var requestChaskiSocket = zmq.socket('req'); 
     var sendMessageSocket = zmq.socket('req'); 
     var callbacks = []; 
