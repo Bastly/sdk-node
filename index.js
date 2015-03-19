@@ -18,7 +18,7 @@ module.exports = function(opts){
     var module = {};
     module.chaski = {};
 
-    requestChaskiSocket.connect('tcp://' + opts.ipAtahualpa + ':' + constants.PORT_CHASKI_ASSIGNER);
+    requestChaskiSocket.connect('tcp://' + opts.ipAtahualpa + ':' + constants.PORT_REQ_REP_ATAHUALPA_CLIENT_REQUEST_WORKER);
     requestChaskiSocket.on('message', function(result, data){
         var parsedResponse = JSON.parse(data);
         module.chaski.ip = parsedResponse.ip;
@@ -26,7 +26,7 @@ module.exports = function(opts){
         callbacks.shift()(parsedResponse);
     });
 
-    sendMessageSocket.connect('tcp://' + opts.ipAtahualpa + ':' + constants.PORT_MESSAGE_RECEIVER);
+    sendMessageSocket.connect('tcp://' + opts.ipAtahualpa + ':' + constants.PORT_REQ_REP_ATAHUALPA_CLIENT_MESSAGES);
     sendMessageSocket.on('message', function(res, message){
         //TODO we must implement some way to understand which response is to each request , since the order does not have to be LILO
         acks.shift()(res.toString()); 
