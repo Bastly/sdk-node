@@ -32,14 +32,39 @@ module.exports = function(opts){
         acks.shift()(res.toString()); 
     });
    
-    var getWorker = function getWorker (clientId, callback){
+    var getWorker = function getWorker (clientId, chaskiType, callback){
+        var dataToSendForRequestingWoker = [
+            'subscribe', //ACTION
+            clientId, //TO
+            clientId, //FROM
+            'fakeApiKey', //apiKey
+            chaskiType//type
+
+        ];
+
         callbacks.push(callback); 
-        requestChaskiSocket.send(JSON.stringify({id: clientId}));
+        requestChaskiSocket.send(dataToSendForRequestingWoker);
     }; 
     
     var sendMessage = function sendMessage(channelId, message, callback){
+        var data;
+        log.info('message is',typeof message, message, message.toString());
+        if(typeof message === 'object'){
+            data = JSON.stringify(message);
+        } else {
+            throw new Error('message must be a javascrip object');
+        }
+        log.info('data is', data);
+        var dataToSend = [
+            'send', //ACTION
+            channelId, //TO 
+            channelId, //FROM TODO 'from' must be autodiscoverable
+            'fakeApiKey', //apiKey
+            data,//data
+
+        ];
         acks.push(callback);
-        sendMessageSocket.send([channelId, message]);
+        sendMessageSocket.send(dataToSend);
     }; 
 
 
