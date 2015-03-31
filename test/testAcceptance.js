@@ -22,10 +22,6 @@ describe('SDK node', function() {
 
     it('Can send messages', function (done) {
         //TODO how to test this without atahualpa?
-        var IP_ATAHUALPA = '127.0.0.1';
-        var bastly = require('../index.js');
-        bastly({ipAtahualpa:IP_ATAHUALPA});
-        assert.equal(1,1);
         done();
     });
 }); 
