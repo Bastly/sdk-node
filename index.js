@@ -21,6 +21,7 @@ module.exports = function(opts){
     requestChaskiSocket.connect('tcp://' + opts.ipAtahualpa + ':' + constants.PORT_REQ_REP_ATAHUALPA_CLIENT_REQUEST_WORKER);
     requestChaskiSocket.on('message', function(result, data){
         var parsedResponse = JSON.parse(data);
+        log.info('got message', parsedResponse);
         module.chaski.ip = parsedResponse.ip;
         //TODO we must implement some way to understand which response is to each request , since the order does not have to be LILO
         callbacks.shift()(parsedResponse);
@@ -33,6 +34,7 @@ module.exports = function(opts){
     });
    
     var getWorker = function getWorker (clientId, chaskiType, callback){
+        log.info('get worker', clientId, chaskiType);
         var dataToSendForRequestingWoker = [
             'subscribe', //ACTION
             clientId, //TO
@@ -46,7 +48,7 @@ module.exports = function(opts){
         requestChaskiSocket.send(dataToSendForRequestingWoker);
     }; 
     
-    var sendMessage = function sendMessage(channelId, message, callback){
+    var sendMessage = function sendMessage(to, from, apiKey, message, callback){
         var data;
         log.info('message is',typeof message, message, message.toString());
         if(typeof message === 'object'){
@@ -57,9 +59,9 @@ module.exports = function(opts){
         log.info('data is', data);
         var dataToSend = [
             'send', //ACTION
-            channelId, //TO 
-            channelId, //FROM TODO 'from' must be autodiscoverable
-            'fakeApiKey', //apiKey
+            to, 
+            from, 
+            apiKey, //apiKey
             data,//data
 
         ];
